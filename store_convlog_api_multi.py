@@ -145,24 +145,23 @@ def main(args):
         
         # 디버깅: 저장할 데이터 확인 (처음 3개만)
         if idx < 3:
-            print(f"🔍 저장할 데이터 {idx}: {data_set}")
-            print(f"   - conv_id: {data_set[0]}")
-            print(f"   - date: {data_set[1]}")
-            print(f"   - q/a: {data_set[2]}")
-            print(f"   - content: {data_set[3][:50]}...")
-            print(f"   - user_id: {data_set[4]}")
-            print(f"   - tenant_id: {data_set[5]}")
-            print(f"   - hash_value: {data_set[6]}")
-            print(f"   - hash_ref: {data_set[7]}")
-        
+            print(f"저장할 데이터 {idx}: {data_set}")
+            print(f"- conv_id: {data_set[0]}")
+            print(f"- date: {data_set[1]}")
+            print(f"- q/a: {data_set[2]}")
+            print(f"- content: {data_set[3][:50]}...")
+            print(f"- user_id: {data_set[4]}")
+            print(f"- tenant_id: {data_set[5]}")
+            print(f"- hash_value: {data_set[6]}")
+            print(f"- hash_ref: {data_set[7]}")
         pipe.table_editor.edit_conv_table('insert', pipe.env_manager.conv_tb_name, data_type='raw', data=data_set)
     
     # 저장 결과 요약
-    print(f"\n📊 데이터 저장 결과:")
-    print(f"   전체 레코드: {total_records}")
-    print(f"   새로 저장된 레코드: {new_records}")
-    print(f"   이미 존재하는 레코드: {existing_records}")
-    print(f"   중복률: {(existing_records/total_records*100):.1f}%" if total_records > 0 else "   중복률: 0%")            
+    print(f"\n 데이터 저장 결과:")
+    print(f"전체 레코드: {total_records}")
+    print(f"새로 저장된 레코드: {new_records}")
+    print(f"이미 존재하는 레코드: {existing_records}")
+    print(f"중복률: {(existing_records/total_records*100):.1f}%" if total_records > 0 else "   중복률: 0%")            
     pipe.postgres.db_connection.close()
 
 if __name__ == '__main__':

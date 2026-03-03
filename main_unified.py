@@ -57,10 +57,10 @@ if __name__ == '__main__':
             name=f"통합 파이프라인 {schedule_config['description']}",
             replace_existing=True
         )
-        logger.info("🚀 통합 파이프라인이 시작됩니다:")
-        logger.info("   📊 데이터 수집 + 🔍 데이터 분석: 매 정시 5분에 통합 실행")
-        logger.info(f"   ⏰ 스케줄: {schedule_config['description']}")
-        logger.info("   💡 한 번만 실행하려면: python main_unified.py --once")
+        logger.info("통합 파이프라인이 시작됩니다:")
+        logger.info("데이터 수집 + 🔍 데이터 분석: 매 정시 5분에 통합 실행")
+        logger.info(f"스케줄: {schedule_config['description']}")
+        logger.info("한 번만 실행하려면: python main_unified.py --once")
         try:
             scheduler.start()
         except KeyboardInterrupt:

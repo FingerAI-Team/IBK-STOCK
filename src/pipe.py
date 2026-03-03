@@ -7,12 +7,11 @@ from datasets import Dataset, DatasetDict
 from dotenv import load_dotenv
 from tqdm import tqdm
 import pandas as pd
-import time
-import json
-import os
 import requests
 import logging
 import hashlib
+import json
+import os
 
 
 class EnvManager:
@@ -280,9 +279,6 @@ class PipelineController:
             self.table_editor.edit_clicked_table('insert', self.env_manager.clicked_tb_name, data_type='raw', data=clicked_set)
 
     def run(self, process='daily', query=None):
-        '''
-        args:
-        '''
         if query:
             self.openai_llm.set_stock_guideline()
             if len(self.val_tokenizer.tokenize_data(query)) == 1:
@@ -323,51 +319,51 @@ class UnifiedPipeline:
     def collect_data(self):
         """데이터 수집 단계"""
         logger = logging.getLogger(__name__)
-        logger.info("🚀 데이터 수집 작업이 시작되었습니다.")
-        logger.info(f"📅 실행 시간: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info(f"데이터 수집 작업이 시작되었습니다.")
+        logger.info(f"실행 시간: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         if self.args.process in ['daily', 'scheduled']:
             current_time = datetime.now()
             start_date = current_time.strftime("%Y-%m-%d")
-            logger.info(f"📅 데이터 수집 날짜: {start_date}")
+            logger.info(f"데이터 수집 날짜: {start_date}")
             
             all_api_data = []
             tenant_ids = ['ibk', 'ibks']
             for tenant_id in tenant_ids:
-                logger.info(f"🔍 {tenant_id} tenant 데이터 수집 중...")
+                logger.info(f"{tenant_id} tenant 데이터 수집 중...")
                 api_data = self.api_pipeline.get_data(date=start_date, tenant_id=tenant_id)
                 if api_data:
                     all_api_data.extend(api_data)
-                    logger.info(f"   ✅ {tenant_id}: {len(api_data)}개 레코드 수집")
+                    logger.info(f"{tenant_id}: {len(api_data)}개 레코드 수집")
                 else:
-                    logger.info(f"   ⚠️ {tenant_id}: 데이터 없음")
-            logger.info(f"📊 총 수집된 API 데이터: {len(all_api_data)}개")
+                    logger.info(f"{tenant_id}: 데이터 없음")
+            logger.info(f"총 수집된 API 데이터: {len(all_api_data)}개")
             if not all_api_data:
-                logger.warning("❌ 수집된 데이터가 없습니다.")
+                logger.warning("수집된 데이터가 없습니다.")
                 return None
             input_data = self.api_pipeline.process_data(self.pipe.table_editor, all_api_data)
             logger.info(f"처리된 데이터 shape: {input_data.shape}")
             if input_data.empty:
-                logger.warning("❌ 처리된 데이터가 비어있습니다.")
+                logger.warning("처리된 데이터가 비어있습니다.")
                 return None
             return input_data
         else:
-            logger.error(f"❌ 지원하지 않는 프로세스 타입입니다: {self.args.process}")
+            logger.error(f"지원하지 않는 프로세스 타입입니다: {self.args.process}")
             return None
     
     def process_and_store_data(self, input_data):
         """데이터 처리 및 저장 단계"""
         logger = logging.getLogger(__name__)
         if input_data is None or input_data.empty:
-            logger.warning("❌ 저장할 데이터가 없습니다.")
+            logger.warning("저장할 데이터가 없습니다.")
             return False
         
-        logger.info("💾 데이터 처리 및 저장을 시작합니다.")
+        logger.info("데이터 처리 및 저장을 시작합니다.")
         # API 데이터인 경우 추가 컬럼 처리
         if self.args.process in ['daily', 'scheduled']:
             required_columns = ['date', 'question', 'answer', 'user_id', 'tenant_id', 'hash_id']
             missing_columns = [col for col in required_columns if col not in input_data.columns]
             if missing_columns:
-                logger.error(f"❌ 필요한 컬럼이 없습니다: {missing_columns}")
+                logger.error(f"필요한 컬럼이 없습니다: {missing_columns}")
                 return False
             input_data = input_data[required_columns]
             
