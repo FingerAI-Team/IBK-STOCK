@@ -1,6 +1,6 @@
 from src import UnifiedPipeline
 from apscheduler.schedulers.blocking import BlockingScheduler
-from scheduler_config import get_schedule_config
+from src.scheduler_config import get_schedule_config
 import argparse
 import logging
 import sys

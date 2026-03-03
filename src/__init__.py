@@ -1,4 +1,4 @@
-from .database import DBConnection, PostgresDB, TableEditor
+from .repositories.postgresql import DBConnection, PostgresDB, TableEditor
 from .encoder import BaseTokenizer, BaseModel, EmbModel, KFDeBERTaTokenizer, KFDeBERTa, ModelTrainer, ModelPredictor
 from .ensemble import WeightedEnsemble
 from .llm import LLMOpenAI

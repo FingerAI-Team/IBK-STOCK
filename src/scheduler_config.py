@@ -3,7 +3,6 @@
 """
 스케줄러 설정 파일
 """
-
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
 

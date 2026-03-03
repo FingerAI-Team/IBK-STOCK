@@ -1,6 +1,6 @@
 from src import EnvManager, PreProcessor, DBManager, ModelManager, LLMManager, PipelineController 
 from apscheduler.schedulers.blocking import BlockingScheduler
-from scheduler_config import get_schedule_config
+from src.scheduler_config import get_schedule_config
 import argparse
 import logging
 import sys
@@ -63,7 +63,6 @@ if __name__ == '__main__':
             name=f"Main Pipeline {schedule_config['description']}",
             replace_existing=True
         )
-        
         logger.info("데이터 수집은 매 정시 5분, 종목 예측은 매 정시 6분에 진행됩니다")
         logger.info(f"Main Pipeline 스케줄러 시작 - {schedule_config['description']}")
         logger.info("한 번만 실행하려면: python main.py --once")

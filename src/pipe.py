@@ -1,6 +1,6 @@
 from .preprocessor import DataProcessor, TextProcessor, VecProcessor, TimeProcessor
 from .encoder import KFDeBERTaTokenizer, KFDeBERTa, ModelTrainer, ModelPredictor
-from .database import PostgresDB, DBConnection, TableEditor
+from .repositories.postgresql import PostgresDB, DBConnection, TableEditor
 from .llm import LLMOpenAI
 from datetime import datetime, timezone, timedelta
 from datasets import Dataset, DatasetDict

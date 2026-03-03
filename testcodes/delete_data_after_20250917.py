@@ -3,7 +3,6 @@
 9월 17일 이후 데이터 삭제 스크립트
 시간대 변환으로 인한 hash_value 불일치 문제 해결을 위해
 """
-
 import os
 import sys
 import json
@@ -14,7 +13,7 @@ from tqdm import tqdm
 # 프로젝트 루트 디렉토리를 Python 경로에 추가
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from src.database import DBConnection, PostgresDB
+from src.repositories.postgresql import DBConnection, PostgresDB
 
 # 로깅 설정
 logging.basicConfig(
