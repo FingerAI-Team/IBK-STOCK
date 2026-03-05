@@ -19,13 +19,17 @@ class ConvRepository:
             return cur.fetchall()
         
     def get_max_conv_id(self, date_prefix):
+        start = f"{date_prefix}_00000"
+        end = f"{date_prefix}_99999"
         query = """
         SELECT MAX(conv_id)
         FROM ibk_convlog
-        WHERE conv_id LIKE %s
+        WHERE conv_id >= %s
+        AND conv_id < %s
         """
-        self.cur.execute(query, (f"{date_prefix}_%",))
-        return self.cur.fetchone()[0]
+        self.cur.execute(query, (start, end))
+        result = self.cur.fetchone()
+        return result[0] if result else None
 
     def exists(self, conv_id: str) -> bool:
         with self.conn.cursor() as cur:
@@ -35,13 +39,32 @@ class ConvRepository:
             )
             return cur.fetchone()[0]
 
-    def insert(self, conv_data: tuple):
+    def insert_one(self, row: tuple):
+        """
+        row = (conv_id, date, qa, content, user_id, tenant_id, hash_value, hash_ref)
+        """
         with self.conn.cursor() as cur:
             cur.execute(
                 """
                 INSERT INTO conv_table
-                (conv_id, date, question, answer, user_id, tenant_id, hash_id)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                (conv_id, date, qa, content, user_id, tenant_id, hash_value, hash_ref)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 """,
-                conv_data
+                row
             )
+        self.conn.commit()
+
+    def insert_many(self, rows: list[tuple]):
+        if not rows:
+            return
+        with self.conn.cursor() as cur:
+            cur.executemany(
+                """
+                INSERT INTO conv_table
+                (conv_id, date, qa, content, user_id, tenant_id, hash_value, hash_ref)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (hash_value) DO NOTHING
+                """,
+                rows
+            )
+        self.conn.commit()

@@ -21,7 +21,6 @@ class HashRepository:
         self.db_connection.cur.execute(f"SELECT EXISTS(SELECT 1 FROM {table_name} WHERE hash_id = %s)", (hash_id,))
         result = self.db_connection.cur.fetchone()
         return result[0] if result else False
-       
     
     def get_or_create(self, hash_value: str) -> int:
         with self.conn.cursor() as cur:

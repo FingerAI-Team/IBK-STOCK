@@ -1,100 +1,110 @@
 from src.repositories.clicked_repo import ClickedRepository
-from src.repositories.hash_repo import HashRepository
 from src.repositories.conv_repo import ConvRepository
 from src.repositories.cls_repo import ClsRepository
 from src.repositories.core import DBConnection
-from src.modules.hash_utils import generate_hash
+from src.modules.hash_utils import md5_hex
 from datetime import datetime, timezone, timedelta
-import pandas as pd
 
 class StorePipe:
     def __init__(self, db_connection: DBConnection):
         self.conv_repo = ConvRepository(db_connection)
         self.cls_repo = ClsRepository(db_connection)
         self.clicked_repo = ClickedRepository(db_connection)
-        self.hash_repo = HashRepository(db_connection)
 
-    def transform_log(self, day_log):
-        pass
+    def transform_log(self, day_logs: list[dict]) -> list[dict]:
+        """
+        API raw logs -> conv table insert용 record list
+        반환 record 예:
+        {
+          "date": "...",
+          "qa": "Q" or "A",
+          "content": "...",
+          "user_id": "...",
+          "tenant_id": "...",
+          "hash_value": "...",
+          "hash_ref": None or "...",
+        }
+        """
+        if not day_logs:
+            return []
+        records: list[dict] = []
+ 
+        for r in day_logs:
+            if not all(k in r for k in ("Q", "A", "date", "user_id")):
+                continue
+            user_id = r["user_id"] if r["user_id"] not in (None, "") else "UNKNOWN"
+            tenant_id = r.get("tenant_id") or "ibk"
+            if tenant_id not in ("ibk", "ibks"):
+                tenant_id = "ibk"
+
+            q_hash = md5_hex(f"{user_id}_{r['Q']}_{r['date']}")
+            a_hash = md5_hex(f"{user_id}_{r['A']}_{r['date']}")
+            records.append({
+                "date": r['date'],
+                "qa": "Q",
+                "content": r['Q'],
+                "user_id": user_id,
+                "tenant_id": tenant_id,
+                "hash_value": q_hash,
+                "hash_ref": None,
+            })
+            records.append({
+                "date": r['date'],
+                "qa": "A",
+                "content": r['A'],
+                "user_id": user_id,
+                "tenant_id": tenant_id,
+                "hash_value": a_hash,
+                "hash_ref": q_hash,
+            })
+        return records
 
     def generate_conv_id(self, records):
         date_counters = {}
+        kst = timezone(timedelta(hours=9))
+
         for record in records:
-            date_value = datetime.fromisoformat(record["date"])
-            kst = timezone(timedelta(hours=9))
+            date_str = record["date"].replace("Z", "+00:00")
+            date_value = datetime.fromisoformat(date_str) 
             if date_value.tzinfo is None:
                 date_value = date_value.replace(tzinfo=timezone.utc)
             kst_date = date_value.astimezone(kst)
-            pk_date = f"{kst_date.year}{str(kst_date.month).zfill(2)}{str(kst_date.day).zfill(2)}"
+            pk_date = kst_date.strftime("%Y%m%d")
             if pk_date not in date_counters:
                 max_conv = self.conv_repo.get_max_conv_id(pk_date)
                 if max_conv:
-                    date_counters[pk_date] = int(max_conv.split("_")[1])
+                    try:
+                        date_counters[pk_date] = int(max_conv.split("_")[1])
+                    except Exception:
+                        date_counters[pk_date] = 0
                 else:
                     date_counters[pk_date] = 0
             date_counters[pk_date] += 1
-            record["conv_id"] = f"{pk_date}_{str(date_counters[pk_date]).zfill(5)}"
+            record["conv_id"] = f"{pk_date}_{date_counters[pk_date]:05d}"
             record["date"] = kst_date.isoformat()
         return records
     
-    def filter_duplicates(self, records):
-        filtered = []
-        for r in records:
-            if self.conv_repo.exists_hash(r["hash_value"]):
-                continue
-            filtered.append(r)
-        return filtered
+    def to_rows(self, records: list[dict]) -> list[tuple]:
+        return [
+            (
+                r["conv_id"],
+                r["date"],
+                r["qa"],
+                r["content"],
+                r["user_id"],
+                r["tenant_id"],
+                r["hash_value"],
+                r["hash_ref"],
+            )
+            for r in records
+        ]
     
-    def process_log(self, day_log):
-        '''
-        원라인에서 API로 받은 로그를 conv table에 저장 가능한 데이터로 변환
-        date, qa, content, user_id, tenant_id, hash_value, hash_ref: ibk, msty 
-        '''
-        if not log:
-            print("API에서 받은 데이터가 비어있습니다.")
-            return pd.DataFrame(columns=["date", "q/a", "content", "user_id", "tenant_id", "hash_value", "hash_ref"])
-            
-        records = []
-        for log in day_log:
-            if "Q" in log and "A" in log and "date" in log and "user_id" in log:
-                # user_id가 None인 경우 'UNKNOWN'으로 처리
-                user_id = log["user_id"] if log["user_id"] is not None and log["user_id"] != "" else "UNKNOWN"
-                tenant_id = log.get("tenant_id") if log.get("tenant_id") is not None else None
-                
-                # Q와 A의 해시값을 미리 생성 (user_id가 None이면 'UNKNOWN' 사용)
-                q_hash = generate_hash(user_id, log["Q"], log["date"])
-                a_hash = generate_hash(user_id, log["A"], log["date"])
-                
-                records.append({
-                    "date": log["date"], 
-                    "q/a": "Q", 
-                    "content": log["Q"], 
-                    "user_id": user_id,  # None이면 'UNKNOWN'으로 저장
-                    "tenant_id": tenant_id,
-                    "hash_value": q_hash,
-                    "hash_ref": None  # Q는 hash_ref가 NULL
-                })
-                records.append({
-                    "date": log["date"], 
-                    "q/a": "A", 
-                    "content": log["A"], 
-                    "user_id": user_id,  # None이면 'UNKNOWN'으로 저장
-                    "tenant_id": tenant_id,
-                    "hash_value": a_hash,
-                    "hash_ref": q_hash  # A는 Q의 hash_value를 hash_ref로
-                })
-            else:
-                print(f"데이터 구조가 예상과 다릅니다: {log.keys()}")
-        if not records:
-            print("처리 가능한 레코드가 없습니다.")
-            return pd.DataFrame(columns=["date", "q/a", "content", "user_id", "tenant_id", "hash_value", "hash_ref"])
-            
-        input_data = pd.DataFrame(records, columns=["date", "q/a", "content", "user_id", "tenant_id", "hash_value", "hash_ref"])
-        print(f"처리된 레코드 수: {len(input_data)}")
-        return input_data
-    
-    def store(self, conv_data, cls_data, clicked_data, hash_data):
-        self.conv_repo.insert(conv_data)
+    def run(self, conv_log, cls_data, clicked_data):
+        conv_data = self.transform_log(conv_log)
+        conv_data = self.generate_conv_id(conv_data)
+        conv_rows = self.to_rows(conv_data)
+        self.conv_repo.insert_many(conv_rows)
+
         self.cls_repo.insert(cls_data)
         self.clicked_repo.insert(clicked_data)
-        self.hash_repo.insert(hash_data)
+        
