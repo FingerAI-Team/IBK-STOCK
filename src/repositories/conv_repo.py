@@ -4,14 +4,14 @@ class ConvRepository:
 
     def find_all(self):
         with self.conn.cursor() as cur:
-            cur.execute("SELECT * FROM conv_table")
+            cur.execute("SELECT * FROM ibk_convlog")
             return cur.fetchall()
 
     def find_by_date(self, date: str):
         with self.conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT * FROM conv_table
+                SELECT * FROM ibk_convlog
                 WHERE SPLIT_PART(conv_id, '_', 1) = %s
                 """,
                 (date,)
@@ -35,7 +35,7 @@ class ConvRepository:
     def exists(self, conv_id: str) -> bool:
         with self.conn.cursor() as cur:
             cur.execute(
-                "SELECT EXISTS(SELECT 1 FROM conv_table WHERE conv_id = %s)",
+                "SELECT EXISTS(SELECT 1 FROM ibk_convlog WHERE conv_id = %s)",
                 (conv_id,)
             )
             return cur.fetchone()[0]
@@ -47,7 +47,7 @@ class ConvRepository:
         with self.conn.cursor() as cur:
             cur.execute(
                 """
-                INSERT INTO conv_table
+                INSERT INTO ibk_convlog
                 (conv_id, date, qa, content, user_id, tenant_id, hash_value, hash_ref)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 """,
@@ -61,7 +61,7 @@ class ConvRepository:
         with self.conn.cursor() as cur:
             cur.executemany(
                 """
-                INSERT INTO conv_table
+                INSERT INTO ibk_convlog
                 (conv_id, date, qa, content, user_id, tenant_id, hash_value, hash_ref)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (hash_value) DO NOTHING
