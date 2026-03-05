@@ -5,9 +5,14 @@ class DataCollector:
     def __init__(self, api_env: IBKAPIEnv):
         self.api_env = api_env
 
-    def collect(self, start_date, to_date, tenant_id="ibk"):
-        return self.api_env.fetch_logs(start_date, to_date, tenant_id)
-
+    def collect(self, start_date, to_date):
+        tenant_id = ["ibk", "ibks"]
+        all_logs = []
+        for tenant in tenant_id:
+            logs = self.api_env.fetch_logs(start_date, to_date, tenant)
+            all_logs.extend(logs)
+        return all_logs
+    
     def run(self):
         now = datetime.now()
         start_date = now.strftime("%Y-%m-%d")
