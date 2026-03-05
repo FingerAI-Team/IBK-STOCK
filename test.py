@@ -7,4 +7,6 @@ data_collector = DataCollector(ibk_api_env)
 
 if __name__ == "__main__":
     day_logs = data_collector.run()
-    print(day_logs)
+    print(f'type of day_logs: {type(day_logs)}')
+    print(f'number of logs collected: {len(day_logs)}')
+    print(f'sample log: {day_logs[0] if len(day_logs) > 0 else "No logs collected"}')
