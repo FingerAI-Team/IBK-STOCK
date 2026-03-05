@@ -6,7 +6,7 @@ from src.core.settings import ONELINE_CONFIG, DB_CONFIG
 
 ibk_api_env = IBKAPIEnv(config=ONELINE_CONFIG)
 db_connection = DBConnection(config=DB_CONFIG)
-
+db_connection.connect()
 data_collector = DataCollector(ibk_api_env)
 store_pipe = StorePipe(db_connection=db_connection.conn)  # DB 연결은 실제 환경에 맞게 설정 필요
 
@@ -15,7 +15,7 @@ if __name__ == "__main__":
     print(f'type of day_logs: {type(day_logs)}')
     print(f'number of logs collected: {len(day_logs)}')
     print(f'sample log: {day_logs[0] if len(day_logs) > 0 else "No logs collected"}')
-    db_connection.connect()
+    
     store_pipe.run(conv_log=day_logs, cls_data=[], clicked_data=[])
     print('done')
     db_connection.close()
