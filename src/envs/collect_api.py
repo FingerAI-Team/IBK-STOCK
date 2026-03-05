@@ -1,6 +1,5 @@
 from src.config import OnelineConfig
 import requests
-import hashlib
 
 class IBKAPIEnv:
     def __init__(self, config: OnelineConfig | None=None):

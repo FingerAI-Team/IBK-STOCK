@@ -399,7 +399,6 @@ class UnifiedPipeline:
                 pk_date = f"{str(kst_date.year)}{str(kst_date.month).zfill(2)}{str(kst_date.day).zfill(2)}"
                 date_counters[pk_date] += 1
                 conv_ids.append(f"{pk_date}_{str(date_counters[pk_date]).zfill(5)}")
-            
             input_data.insert(0, 'conv_id', conv_ids)
             input_data = input_data[['conv_id', 'date', 'question', 'answer', 'user_id', 'tenant_id', 'hash_id']]
         else:
@@ -457,7 +456,6 @@ class UnifiedPipeline:
         """전체 파이프라인 실행"""
         logger = logging.getLogger(__name__)
         logger.info("=== 통합 파이프라인 시작 ===")
-        
         try:
             # 1단계: 데이터 수집
             input_data = self.collect_data()

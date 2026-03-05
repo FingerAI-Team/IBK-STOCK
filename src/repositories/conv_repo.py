@@ -17,6 +17,15 @@ class ConvRepository:
                 (date,)
             )
             return cur.fetchall()
+        
+    def get_max_conv_id(self, date_prefix):
+        query = """
+        SELECT MAX(conv_id)
+        FROM ibk_convlog
+        WHERE conv_id LIKE %s
+        """
+        self.cur.execute(query, (f"{date_prefix}_%",))
+        return self.cur.fetchone()[0]
 
     def exists(self, conv_id: str) -> bool:
         with self.conn.cursor() as cur:
