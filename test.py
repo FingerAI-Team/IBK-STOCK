@@ -14,3 +14,6 @@ if __name__ == "__main__":
     print(f'type of day_logs: {type(day_logs)}')
     print(f'number of logs collected: {len(day_logs)}')
     print(f'sample log: {day_logs[0] if len(day_logs) > 0 else "No logs collected"}')
+
+    store_pipe.run(conv_log=day_logs, cls_data=[], clicked_data=[])
+    print('done')
