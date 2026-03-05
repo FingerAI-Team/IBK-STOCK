@@ -105,6 +105,6 @@ class StorePipe:
         conv_rows = self.to_rows(conv_data)
         self.conv_repo.insert_many(conv_rows)
 
-        self.cls_repo.insert(cls_data)
-        self.clicked_repo.insert(clicked_data)
+        # self.cls_repo.insert(cls_data)
+        # self.clicked_repo.insert(clicked_data)
         
