@@ -27,8 +27,9 @@ class ConvRepository:
         WHERE conv_id >= %s
         AND conv_id < %s
         """
-        self.cur.execute(query, (start, end))
-        result = self.cur.fetchone()
+        with self.conn.cursor() as cur:
+            cur.execute(query, (start, end))
+            result = cur.fetchone()
         return result[0] if result else None
 
     def exists(self, conv_id: str) -> bool:
