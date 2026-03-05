@@ -40,4 +40,11 @@ class dataConfig:
 class OnelineConfig:
     bearer_token: str = ""
     base_url: str = "https://chat-api.ibks.onelineai.com"
-    
+
+@dataclass(frozen=True)
+class DBConfig:   
+    host: str = "postgres_postgresql-master_1"
+    db_name: str = "ibk_db"
+    user_id: str = "ibk-manager"
+    user_pw: str = "fingerai2024!"
+    port: int = 5432
