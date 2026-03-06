@@ -42,4 +42,5 @@ class DataClassifier:
             enc_res = 'o' if stock_pred == 'stock' else 'x'
             conv_id = record["conv_id"]
             cls_rows.append((conv_id, enc_res))
+        print(f'cls_rows: {cls_rows}')
         return cls_rows 
