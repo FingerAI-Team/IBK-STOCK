@@ -32,4 +32,5 @@ class HFInferenceEnv:
         with torch.no_grad():
             outputs = self.model_env.model(**inputs)
             probs = F.softmax(outputs.logits, dim=-1)[0]
+        print('done !!! ')
         return probs.tolist()
