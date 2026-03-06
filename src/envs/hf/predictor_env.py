@@ -12,9 +12,7 @@ class HFInferenceEnv:
     def predict(self, text: str) -> str:
         self.model_env.set_eval()
         inputs = self.tokenizer_env.tokenize_text(
-            text,
-            truncation=True,
-            return_tensors="pt"
+            text
         )
         inputs = {
             k: v.to(self.model_env.device)
