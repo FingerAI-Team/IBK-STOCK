@@ -3,10 +3,10 @@ from src.repositories.cls_repo import ClsRepository
 from src.repositories.core import DBConnection
 
 class StorePipe:
-    def __init__(self, db_connection: DBConnection):
-        self.conv_repo = ConvRepository(db_connection)
-        self.cls_repo = ClsRepository(db_connection)
-    
+    def __init__(self, conv_repo: ConvRepository, cls_repo: ClsRepository):
+        self.conv_repo = conv_repo
+        self.cls_repo = cls_repo
+
     def _to_conv_rows(self, records: list[dict]) -> list[tuple]:
         return [
             (

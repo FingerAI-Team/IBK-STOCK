@@ -1,8 +1,12 @@
 
 from datetime import datetime, timezone, timedelta
+from src.repositories.conv_repo import ConvRepository
 from src.modules.hash_utils import md5_hex
 
 class TransformPipe:
+    def __init__(self, conv_repo: ConvRepository):
+        self.conv_repo = conv_repo
+        
     def _transform_log(self, day_logs: list[dict]) -> list[dict]:
         """
         API raw logs -> conv table insert용 record list
