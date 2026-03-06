@@ -36,6 +36,7 @@ class DataClassifier:
             stock_pred = self.predictor_env.predict(text)
             print(f'stock_pred: {stock_pred}, text: {text}')
             fast_filter = self.filter_text(text)
+            print('fast_filter: ', fast_filter)
             if fast_filter is not None:
                 stock_pred = fast_filter
 
