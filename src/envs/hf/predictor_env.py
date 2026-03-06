@@ -16,6 +16,7 @@ class HFInferenceEnv:
         with torch.no_grad():
             outputs = self.model_env.model(**inputs)
             prediction = torch.argmax(outputs.logits, dim=1).item()
+        print('done !!! ')
         return ID2LABEL[prediction]
 
     def predict_proba(self, text: str):
