@@ -33,6 +33,7 @@ class DataClassifier:
             if not text:
                 continue
             stock_pred = self.predictor_env.predict(text)
+            print(f'stock_pred: {stock_pred}, text: {text}')
             fast_filter = self.filter_text(text)
             if fast_filter is not None:
                 stock_pred = fast_filter
