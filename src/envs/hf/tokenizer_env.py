@@ -4,7 +4,7 @@ import torch
 
 class HFTokenizerEnv:
     def __init__(self, config: TokenizerConfig | None=None):
-        self.config = config 
+        self.config = TokenizerConfig() if config is None else config 
         self._tokenizer = None  # lazy 대상
         self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 

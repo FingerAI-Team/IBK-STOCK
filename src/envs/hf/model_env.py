@@ -5,7 +5,7 @@ import torch
 
 class HFModelEnv:
     def __init__(self, config: ModelConfig | None=None):
-        self.config = config
+        self.config = ModelConfig() if config is None else config
         self._model = None
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
