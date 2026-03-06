@@ -17,6 +17,7 @@ class DataClassifier:
             'o' / 'x' → override
             None      → encoder 판단 사용
         """
+        print(f'filter_text input: {text}')
         if len(self.tokenizer_env.tokenize_text(text)) == 1:
             cleaned_word = remove_patterns(
                 text, r"(뉴스|주식|정보|분석)$"
