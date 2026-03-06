@@ -28,20 +28,23 @@ class DataClassifier:
     def run(self, records):
         cls_rows = []
         for record in records:
-            if record["qa"] != "Q":
-                continue
-            text = record["content"]
-            if not text:
-                continue
-            stock_pred = self.predictor_env.predict(text)
-            print(f'stock_pred: {stock_pred}, text: {text}')
-            fast_filter = self.filter_text(text)
-            print('fast_filter: ', fast_filter)
-            if fast_filter is not None:
-                stock_pred = fast_filter
+            try:
+                if record["qa"] != "Q":
+                    continue
+                text = record["content"]
+                if not text:
+                    continue
+                stock_pred = self.predictor_env.predict(text)
+                print(f'stock_pred: {stock_pred}, text: {text}')
+                fast_filter = self.filter_text(text)
+                print('fast_filter: ', fast_filter)
+                if fast_filter is not None:
+                    stock_pred = fast_filter
 
-            enc_res = 'o' if stock_pred == 'stock' else 'x'
-            conv_id = record["conv_id"]
-            cls_rows.append((conv_id, enc_res))
+                enc_res = 'o' if stock_pred == 'stock' else 'x'
+                conv_id = record["conv_id"]
+                cls_rows.append((conv_id, enc_res))
+            except: 
+                print(text)
         print(f'cls_rows: {cls_rows}')
         return cls_rows 
