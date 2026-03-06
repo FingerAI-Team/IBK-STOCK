@@ -20,6 +20,9 @@ class HFModelEnv:
             )
             self._model.to(self.device)
         return self._model
+    
+    def resize_embeddings(self, tokenizer):
+        self.model.resize_token_embeddings(len(tokenizer))
 
     def set_eval(self):
         self.model.eval()

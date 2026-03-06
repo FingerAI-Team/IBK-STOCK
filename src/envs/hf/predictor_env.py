@@ -8,6 +8,7 @@ class HFInferenceEnv:
     def __init__(self, model_env: HFModelEnv, tokenizer_env: HFTokenizerEnv):
         self.model_env = model_env
         self.tokenizer_env = tokenizer_env
+        self.model_env.set_eval()
 
     def predict(self, text: str) -> str:
         self.model_env.set_eval()
@@ -16,11 +17,9 @@ class HFInferenceEnv:
         with torch.no_grad():
             outputs = self.model_env.model(**inputs)
             prediction = torch.argmax(outputs.logits, dim=1).item()
-        print('done !!! ')
         return ID2LABEL[prediction]
 
     def predict_proba(self, text: str):
-        self.model_env.model.eval()
         inputs = self.tokenizer_env.tokenizer(
             text,
             truncation=True,

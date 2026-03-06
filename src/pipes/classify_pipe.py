@@ -8,7 +8,16 @@ class DataClassifier:
     def __init__(self):
         self.model_env = HFModelEnv()
         self.tokenizer_env = HFTokenizerEnv()
-        self.predictor_env = HFInferenceEnv(model_env=self.model_env, tokenizer_env=self.tokenizer_env)  
+        tokenizer = self.tokenizer_env.tokenizer
+        model = self.model_env.model
+
+        # tokenizer vocab size에 맞게 embedding resize
+        model.resize_token_embeddings(len(tokenizer))
+
+        self.predictor_env = HFInferenceEnv(
+            model_env=self.model_env,
+            tokenizer_env=self.tokenizer_env
+        )
     
     def filter_text(self, text: str) -> str | None:
         """
