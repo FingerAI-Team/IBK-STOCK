@@ -1,6 +1,7 @@
 from src.envs.hf.tokenizer_env import HFTokenizerEnv
 from src.envs.hf.model_env import HFModelEnv
 from src.envs.hf.predictor_env import HFInferenceEnv
+from src.modules.processors.text_cleaner import remove_patterns
 
 '''Classification Pipe'''
 class DataClassifier:
@@ -16,8 +17,8 @@ class DataClassifier:
             'o' / 'x' → override
             None      → encoder 판단 사용
         """
-        if len(self.val_tokenizer.tokenize_data(text)) == 1:
-            cleaned_word = self.text_p.remove_patterns(
+        if len(self.tokenizer_env.tokenize_text(text)) == 1:
+            cleaned_word = remove_patterns(
                 text, r"(뉴스|주식|정보|분석)$"
             )
             return 'stock' if cleaned_word in self.tickle_set else 'nstock'
