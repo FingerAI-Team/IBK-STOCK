@@ -7,6 +7,15 @@ class BGEConfig:
     max_length: int = 1024    
 
 @dataclass(frozen=True)
+class ModelConfig:
+    model_path: str = "/stock-service/model/kfdeberta/model-update"
+    model_type: str = "mistral"
+
+@dataclass(frozen=True)
+class TokenizerConfig:
+    tokenizer_path: str = "/stock-service/model/val-tokenizer"
+
+@dataclass(frozen=True)
 class HFTrainConfig:
     output_subdir: str = "kfdeberta"
     learning_rate: float = 2e-5

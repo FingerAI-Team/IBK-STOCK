@@ -1,10 +1,11 @@
 from transformers import AutoModelForSequenceClassification
 from src.modules.label_mapper import ID2LABEL, LABEL2ID
+from src.config import ModelConfig
 import torch
 
-class KFDeBERTaEnv:
-    def __init__(self, model_path: str):
-        self.model_path = model_path
+class HFModelEnv:
+    def __init__(self, config: ModelConfig | None=None):
+        self.config = config
         self._model = None
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -12,7 +13,7 @@ class KFDeBERTaEnv:
     def model(self):
         if self._model is None:
             self._model = AutoModelForSequenceClassification.from_pretrained(
-                self.model_path,
+                self.config.model_path,
                 num_labels=2,
                 id2label=ID2LABEL,
                 label2id=LABEL2ID
@@ -21,10 +22,10 @@ class KFDeBERTaEnv:
         return self._model
 
     def set_eval(self):
-        self.model.eval()
+        self._model.eval()
 
     def set_train(self):
-        self.model.train()
+        self._model.train()
         
     def save(self, save_path: str):
-        self.model.save_pretrained(save_path)
+        self._model.save_pretrained(save_path)
