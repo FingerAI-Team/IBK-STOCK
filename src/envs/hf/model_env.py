@@ -22,10 +22,10 @@ class HFModelEnv:
         return self._model
 
     def set_eval(self):
-        self._model.eval()
+        self.model.eval()
 
     def set_train(self):
-        self._model.train()
+        self.model.train()
         
     def save(self, save_path: str):
-        self._model.save_pretrained(save_path)
+        self.model.save_pretrained(save_path)
