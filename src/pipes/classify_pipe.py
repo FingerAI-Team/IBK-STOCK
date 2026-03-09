@@ -2,28 +2,42 @@ from src.envs.hf.tokenizer_env import HFTokenizerEnv
 from src.envs.hf.model_env import HFModelEnv
 from src.envs.hf.predictor_env import HFInferenceEnv
 from src.modules.processors.text_cleaner import remove_patterns
+from src.config import ClassifyConfig
+import pandas as pd 
 
 '''Classification Pipe'''
 class DataClassifier:
-    def __init__(self):
+    def __init__(self, tickle_config: ClassifyConfig | None = None):
         self.model_env = HFModelEnv()
         self.tokenizer_env = HFTokenizerEnv()
         tokenizer = self.tokenizer_env.tokenizer
         model = self.model_env.model
+        self.classify_config = tickle_config or ClassifyConfig()
 
-        # tokenizer vocab size에 맞게 embedding resize
+        self._tickle_set = None
         model.resize_token_embeddings(len(tokenizer))
         self.predictor_env = HFInferenceEnv(
             model_env=self.model_env,
             tokenizer_env=self.tokenizer_env
         )
-    
+
+    @property
+    def tickle_set(self):
+        if self._tickle_set is None:
+            self._tickle_set = set(self._load_tickle_set())
+        return self._tickle_set
+
+    def _load_tickle_set(self):
+        tickles = pd.read_csv(self.classify_config.tickle_set_path)
+        tickles.dropna(inplace=True)
+        return tickles["tickle"].values.tolist()
+
     def filter_text(self, text: str) -> str | None:
         """
         단일 토큰 질문일 경우 빠른 종목 필터
         반환:
             'o' / 'x' → override
-            None      → encoder 판단 사용
+            None → encoder 판단 사용
         """
         # print(f'filter_text input: {text}')
         if len(self.tokenizer_env.tokenize_text(text)) == 1:

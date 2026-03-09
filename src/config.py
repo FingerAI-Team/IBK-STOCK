@@ -12,6 +12,10 @@ class ModelConfig:
     model_type: str = "mistral"
 
 @dataclass(frozen=True)
+class ClassifyConfig:
+    tickle_set_path: str = "/stock-service/tickle/tickle-final.csv"
+
+@dataclass(frozen=True)
 class TokenizerConfig:
     tokenizer_path: str = "/stock-service/model/val-tokenizer"
 
