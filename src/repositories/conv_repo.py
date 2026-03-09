@@ -31,6 +31,17 @@ class ConvRepository:
             cur.execute(query, (start, end))
             result = cur.fetchone()
         return result[0] if result else None
+    
+    def get_conv_id_by_hash(self, hash_value):
+        query = """
+        SELECT conv_id
+        FROM ibk_convlog
+        WHERE hash_value = %s
+        """
+        with self.conn.cursor() as cur:
+            cur.execute(query, (hash_value,))
+            result = cur.fetchone()
+        return result[0] if result else None
 
     def exists(self, conv_id: str) -> bool:
         with self.conn.cursor() as cur:
