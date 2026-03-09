@@ -13,7 +13,6 @@ class DataClassifier:
 
         # tokenizer vocab size에 맞게 embedding resize
         model.resize_token_embeddings(len(tokenizer))
-
         self.predictor_env = HFInferenceEnv(
             model_env=self.model_env,
             tokenizer_env=self.tokenizer_env

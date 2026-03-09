@@ -31,6 +31,6 @@ if __name__ == "__main__":
     
     records = transform_pipe.run(day_log=day_logs)
     cls_records = cls_pipe.run(records=records)
-    store_pipe.run(conv_log=records, cls_data=cls_records)
+    store_pipe.run(conv_records=records, cls_data=cls_records)
     print('done')
     db_connection.close()
