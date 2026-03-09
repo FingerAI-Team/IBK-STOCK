@@ -4,13 +4,13 @@ class ClsRepository:
 
     def find_all(self):
         with self.conn.cursor() as cur:
-            cur.execute("SELECT * FROM cls_table")
+            cur.execute("SELECT * FROM ibk_stock_cls")
             return cur.fetchall()
         
     def insert(self, conv_id, ensemble):
         with self.conn.cursor() as cur:
             cur.execute(
-                "INSERT INTO cls_table (conv_id, ensemble) VALUES (%s, %s)",
+                "INSERT INTO ibk_stock_cls (conv_id, ensemble) VALUES (%s, %s)",
                 (conv_id, ensemble)
             )
 
@@ -23,7 +23,7 @@ class ClsRepository:
         with self.conn.cursor() as cur:
             cur.executemany(
                 """
-                INSERT INTO cls_table (conv_id, ensemble)
+                INSERT INTO ibk_stock_cls (conv_id, ensemble)
                 VALUES (%s, %s)
                 ON CONFLICT DO NOTHING
                 """,
