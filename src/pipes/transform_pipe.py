@@ -23,8 +23,8 @@ class TransformPipe:
         """
         if not day_logs:
             return []
-        records: list[dict] = []
- 
+        
+        records: list[dict] = [] 
         for r in day_logs:
             if not all(k in r for k in ("Q", "A", "date", "user_id")):
                 continue

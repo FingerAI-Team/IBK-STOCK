@@ -25,7 +25,7 @@ class DataClassifier:
             'o' / 'x' → override
             None      → encoder 판단 사용
         """
-        print(f'filter_text input: {text}')
+        # print(f'filter_text input: {text}')
         if len(self.tokenizer_env.tokenize_text(text)) == 1:
             cleaned_word = remove_patterns(
                 text, r"(뉴스|주식|정보|분석)$"
@@ -50,9 +50,9 @@ class DataClassifier:
                 enc_res = 'o' if stock_pred == 'stock' else 'x'
                 conv_id = record["conv_id"]
                 cls_rows.append((conv_id, enc_res))
-                print('ok step 1')
+                # print('ok step 1')
             except: 
-                print(f"Error processing record with conv_id {record.get('conv_id')}")
-                print(text)
-        print(f'cls_rows: {cls_rows}')
+                print(f"Error processing record with conv_id {record.get('conv_id')}, text: {record.get('content')}")
+                continue
+        # print(f'cls_rows: {cls_rows}')
         return cls_rows 
