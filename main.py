@@ -18,10 +18,10 @@ def run_schedule():
     scheduler = BlockingScheduler()
     scheduler.add_job(
         run_once,
-        trigger="cron",
-        minute="*/5",      # 5분마다 실행
+        trigger="interval",
+        minutes=10,      # 5분마다 실행
         max_instances=1,
-        coalesce=True
+        # coalesce=True
     )
     logger.info("Scheduler started")
     scheduler.start()
