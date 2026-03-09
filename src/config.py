@@ -1,4 +1,3 @@
-
 from dataclasses import dataclass
 
 @dataclass(frozen=True)
@@ -8,7 +7,7 @@ class BGEConfig:
 
 @dataclass(frozen=True)
 class ModelConfig:
-    model_path: str = "/stock-service/model/kfdeberta/model-update"
+    save_model_path: str = "/stock-service/model/kfdeberta/model-update"
     model_type: str = "mistral"
 
 @dataclass(frozen=True)
