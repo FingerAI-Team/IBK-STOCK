@@ -51,8 +51,9 @@ class DataClassifier:
                 conv_id = record["conv_id"]
                 cls_rows.append((conv_id, enc_res))
                 # print('ok step 1')
-            except: 
+            except Exception as e:
                 print(f"Error processing record with conv_id {record.get('conv_id')}, text: {record.get('content')}")
+                print(f"Exception: {e}")
                 continue
         # print(f'cls_rows: {cls_rows}')
         return cls_rows 

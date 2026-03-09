@@ -10,7 +10,6 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-
 def run_once():
     pipeline = IBKPipeline()
     pipeline.run()
