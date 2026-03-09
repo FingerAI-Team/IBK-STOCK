@@ -13,11 +13,23 @@ class HFInferenceEnv:
     def predict(self, text: str) -> str:
         self.model_env.set_eval()
         inputs = self.tokenizer_env.tokenizer(text, truncation=True, return_tensors="pt")
-        
         with torch.no_grad():
             outputs = self.model_env.model(**inputs)
             prediction = torch.argmax(outputs.logits, dim=1).item()
         return ID2LABEL[prediction]
+    
+    def predict_batch(self, texts: list[str]) -> list[str]:
+        inputs = self.tokenizer_env.tokenizer(
+            texts,
+            truncation=True,
+            padding=True,
+            return_tensors="pt"
+        )
+        inputs = {k: v.to(self.model_env.device) for k, v in inputs.items()}
+        with torch.no_grad():
+            outputs = self.model_env.model(**inputs)
+            preds = torch.argmax(outputs.logits, dim=1)
+        return [ID2LABEL[p.item()] for p in preds]
 
     def predict_proba(self, text: str):
         inputs = self.tokenizer_env.tokenizer(

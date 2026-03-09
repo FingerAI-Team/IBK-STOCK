@@ -49,25 +49,25 @@ class DataClassifier:
 
     def run(self, records):
         cls_rows = []
+        texts = []
+        conv_ids = []
         for record in records:
-            try:
-                if record["qa"] != "Q":
-                    continue
-                text = record["content"]
-                if not text:
-                    continue
-                stock_pred = self.predictor_env.predict(text)
-                fast_filter = self.filter_text(text)
-                if fast_filter is not None:
-                    stock_pred = fast_filter
-
-                enc_res = 'o' if stock_pred == 'stock' else 'x'
-                conv_id = record["conv_id"]
-                cls_rows.append((conv_id, enc_res))
-                # print('ok step 1')
-            except Exception as e:
-                print(f"Error processing record with conv_id {record.get('conv_id')}, text: {record.get('content')}")
-                print(f"Exception: {e}")
+            if record["qa"] != "Q":
                 continue
-        # print(f'cls_rows: {cls_rows}')
-        return cls_rows 
+            text = record["content"]
+            if not text:
+                continue
+
+            fast_filter = self.filter_text(text)
+            if fast_filter is None:
+                texts.append(text)
+                conv_ids.append(record["conv_id"])
+            else:
+                enc_res = 'o' if fast_filter == 'stock' else 'x'
+                cls_rows.append((record["conv_id"], enc_res))
+        if texts:
+            preds = self.predictor_env.predict_batch(texts)
+            for conv_id, pred in zip(conv_ids, preds):
+                enc_res = 'o' if pred == 'stock' else 'x'
+                cls_rows.append((conv_id, enc_res))
+        return cls_rows
