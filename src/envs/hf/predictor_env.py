@@ -11,7 +11,6 @@ class HFInferenceEnv:
         self.model_env.set_eval()
 
     def predict(self, text: str) -> str:
-        self.model_env.set_eval()
         inputs = self.tokenizer_env.tokenizer(text, truncation=True, return_tensors="pt")
         with torch.no_grad():
             outputs = self.model_env.model(**inputs)

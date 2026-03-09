@@ -13,9 +13,12 @@ class DataClassifier:
         tokenizer = self.tokenizer_env.tokenizer
         model = self.model_env.model
         self.classify_config = tickle_config or ClassifyConfig()
+        emb_size = model.get_input_embeddings().num_embeddings
+        if emb_size != len(tokenizer):
+            print(f"Resizing model embeddings from {emb_size} to {len(tokenizer)}")
+            model.resize_token_embeddings(len(tokenizer))
 
         self._tickle_set = None
-        model.resize_token_embeddings(len(tokenizer))
         self.predictor_env = HFInferenceEnv(
             model_env=self.model_env,
             tokenizer_env=self.tokenizer_env
