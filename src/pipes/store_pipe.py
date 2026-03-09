@@ -1,6 +1,5 @@
 from src.repositories.conv_repo import ConvRepository
 from src.repositories.cls_repo import ClsRepository
-from src.repositories.core import DBConnection
 
 class StorePipe:
     def __init__(self, conv_repo: ConvRepository, cls_repo: ClsRepository):
