@@ -25,4 +25,4 @@ class StorePipe:
     def run(self, conv_records, cls_data):
         conv_rows = self._to_conv_rows(conv_records)
         self.conv_repo.insert_many(conv_rows)
-        self.cls_repo.insert(cls_data)        
+        self.cls_repo.insert_many(cls_data)        
