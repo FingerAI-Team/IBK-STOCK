@@ -6,7 +6,7 @@ from src.modules.hash_utils import md5_hex
 class TransformPipe:
     def __init__(self, conv_repo: ConvRepository):
         self.conv_repo = conv_repo
-        
+
     def _transform_log(self, day_logs: list[dict]) -> list[dict]:
         """
         API raw logs -> conv table insert용 record list
@@ -58,10 +58,15 @@ class TransformPipe:
     def _generate_conv_id(self, records):
         date_counters = {}
         kst = timezone(timedelta(hours=9))
-
         for record in records:
+            # 이미 존재하는 데이터인지 확인
+            existing_conv_id = self.conv_repo.get_conv_id_by_hash(record["hash_value"])
+            if existing_conv_id:
+                record["conv_id"] = existing_conv_id
+                continue
             date_str = record["date"].replace("Z", "+00:00")
-            date_value = datetime.fromisoformat(date_str) 
+            date_value = datetime.fromisoformat(date_str)
+
             if date_value.tzinfo is None:
                 date_value = date_value.replace(tzinfo=timezone.utc)
             kst_date = date_value.astimezone(kst)
