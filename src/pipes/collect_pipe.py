@@ -28,5 +28,5 @@ class DataCollector:
         from_date_utc = start_dt.strftime("%Y-%m-%dT%H:%M:%S")
         to_date_utc = end_dt.strftime("%Y-%m-%dT%H:%M:%S")
         day_logs = self.collect(from_date_utc, to_date_utc)
-        print(f'day_logs date: {day_logs[0]['date']}')
+        print(f'day_logs date: {day_logs[0]['date']}, content: {day_logs[0]["Q"]}')
         return day_logs
