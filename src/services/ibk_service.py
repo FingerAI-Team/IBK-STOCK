@@ -46,12 +46,8 @@ class IBKPipeline:
             day_logs = self.collect_pipe.run(start_date, end_date)
             
             logger.info(f"logs collected: {len(day_logs)}")
-            if not day_logs:
-                return
             records = self.transform_pipe.run(day_log=day_logs)
             logger.info(f"records transformed: {len(records)}")
-            if not records:
-                return
             cls_records = self.classify_pipe.run(records)
             logger.info(f"classification rows: {len(cls_records)}")
             self.store_pipe.run(
