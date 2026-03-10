@@ -85,6 +85,7 @@ class TransformPipe:
             counters[counter_key] += 1
             idx = counters[counter_key]
             record["conv_id"] = f"{date_key}_{tenant}_{idx:05d}"
+        print(f'len records: {len(records)}')
         return records
     
     def run(self, day_log):
