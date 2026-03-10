@@ -69,6 +69,7 @@ class ConvRepository:
     def insert_many(self, rows: list[tuple]):
         print(f'Inserting {len(rows)} rows into ibk_convlog')
         print(f'Sample row: {rows[0] if rows else "No rows to insert"}')
+        print(f'Sample row: {rows[-1] if rows else "No rows to insert"}')
         if not rows:
             return
         with self.conn.cursor() as cur:

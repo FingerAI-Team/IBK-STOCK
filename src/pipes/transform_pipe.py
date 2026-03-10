@@ -58,6 +58,14 @@ class TransformPipe:
         return records
 
     def _generate_conv_id(self, records):
+        '''
+        date_str = record["date"].replace("Z", "+00:00")
+        date_value = datetime.fromisoformat(date_str)
+        if date_value.tzinfo is None:
+            date_value = date_value.replace(tzinfo=timezone.utc)
+        kst_date = date_value.astimezone(kst)
+        record["date"] = kst_date.isoformat()
+        '''
         if not records:
             return records
 
@@ -80,7 +88,6 @@ class TransformPipe:
             if utc_dt.tzinfo is None:
                 utc_dt = utc_dt.replace(tzinfo=timezone.utc)
             kst_dt = utc_dt.astimezone(kst)
-            print(f'kst_dt: {kst_dt}, utc_dt: {utc_dt}, date_str: {date_str}')
             date_key = kst_dt.strftime("%Y%m%d")
             tenant = record.get("tenant_id", "ibk")
             counter_key = (date_key, tenant)
