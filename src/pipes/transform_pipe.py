@@ -101,7 +101,7 @@ class TransformPipe:
                 utc_dt = utc_dt.replace(tzinfo=timezone.utc)
             kst_dt = utc_dt.astimezone(kst)
             r["date"] = kst_dt
-            print(f'added kst date, sample: {records[0]["date"]}, utc date: {records[0]["date_utc"]}')
+            print(f'added kst date, sample: {r["date"]}, utc date: {r["date_utc"]}')
         return records
     
     def run(self, day_log):
