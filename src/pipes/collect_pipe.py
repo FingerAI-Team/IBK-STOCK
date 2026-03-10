@@ -18,6 +18,14 @@ class DataCollector:
             now = datetime.now()
             start_date = now.strftime("%Y-%m-%d")
         if end_date is None:
-            end_date = (datetime.strptime(start_date, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
-        day_logs = self.collect(start_date, end_date)
+            end_date = (
+                datetime.strptime(start_date, "%Y-%m-%d") + timedelta(days=1)
+            ).strftime("%Y-%m-%d")
+
+        # KST → UTC 변환
+        start_dt = datetime.strptime(start_date, "%Y-%m-%d") - timedelta(hours=9)
+        end_dt = datetime.strptime(end_date, "%Y-%m-%d") - timedelta(hours=9)
+        from_date_utc = start_dt.strftime("%Y-%m-%dT%H:%M:%S")
+        to_date_utc = end_dt.strftime("%Y-%m-%dT%H:%M:%S")
+        day_logs = self.collect(from_date_utc, to_date_utc)
         return day_logs
