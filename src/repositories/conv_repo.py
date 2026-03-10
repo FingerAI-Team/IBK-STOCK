@@ -51,6 +51,23 @@ class ConvRepository:
             )
             return cur.fetchone()[0]
 
+    def get_conv_ids_by_hashes(self, hashes):
+        if not hashes:
+            return {}
+
+        query = """
+            SELECT hash_value, conv_id
+            FROM ibk_convlog
+            WHERE hash_value = ANY(%s)
+        """
+
+        with self.conn.cursor() as cur:
+            cur.execute(query, (hashes,))
+            rows = cur.fetchall()
+
+        # {hash_value: conv_id}
+        return {row[0]: row[1] for row in rows}
+
     def insert_one(self, row: tuple):
         """
         row = (conv_id, date, qa, content, user_id, tenant_id, hash_value, hash_ref)
