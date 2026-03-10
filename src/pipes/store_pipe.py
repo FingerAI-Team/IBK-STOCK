@@ -17,6 +17,7 @@ class StorePipe:
                 r["tenant_id"],
                 r["hash_value"],
                 r["hash_ref"],
+                r["date_utc"]
             )
             for r in records
         ]
