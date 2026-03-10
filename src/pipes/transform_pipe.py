@@ -27,33 +27,33 @@ class TransformPipe:
             return []
         
         records: list[dict] = [] 
-        for r in day_logs:
-            if not all(k in r for k in ("Q", "A", "date", "user_id")):
+        for log in day_logs:
+            if not all(k in log for k in ("Q", "A", "date", "user_id")):
                 continue
-            user_id = r["user_id"] if r["user_id"] not in (None, "") else "UNKNOWN"
-            tenant_id = r.get("tenant_id") or "ibk"
+            user_id = log["user_id"] if log["user_id"] not in (None, "") else "UNKNOWN"
+            tenant_id = log.get("tenant_id") or "ibk"
             if tenant_id not in ("ibk", "ibks"):
                 tenant_id = "ibk"
 
-            q_hash = md5_hex(f"{user_id}_{r['Q']}_{r['date']}")
-            a_hash = md5_hex(f"{user_id}_{r['A']}_{r['date']}")
+            q_hash = md5_hex(f"{user_id}_{log['Q']}_{log['date']}")
+            a_hash = md5_hex(f"{user_id}_{log['A']}_{log['date']}")
             records.append({
                 "qa": "Q",
-                "content": r['Q'],
+                "content": log['Q'],
                 "user_id": user_id,
                 "tenant_id": tenant_id,
                 "hash_value": q_hash,
                 "hash_ref": None,
-                "date_utc": r['date'],  # Assuming the date field is already in UTC
+                "date_utc": log['date'],  # Assuming the date field is already in UTC
             })
             records.append({
                 "qa": "A",
-                "content": r['A'],
+                "content": log['A'],
                 "user_id": user_id,
                 "tenant_id": tenant_id,
                 "hash_value": a_hash,
                 "hash_ref": q_hash,
-                "date_utc": r['date'],  # Assuming the date field is already in UTC
+                "date_utc": log['date'],  # Assuming the date field is already in UTC
             })
         return records
 
@@ -66,7 +66,7 @@ class TransformPipe:
         hashes = [r["hash_value"] for r in records]
         existing_map = self.conv_repo.get_conv_ids_by_hashes(hashes)   # 반환 예: {hash_value: conv_id}
         counters = defaultdict(int)
-        records.sort(key=lambda r: r["date"])   # 시간순 정렬 (conv_id 안정성)
+        records.sort(key=lambda r: r["date_utc"])   # 시간순 정렬 (conv_id 안정성)
 
         for record in records:
             existing = existing_map.get(record["hash_value"])
@@ -75,7 +75,7 @@ class TransformPipe:
                 continue
 
             # UTC → KST
-            date_str = record["date"].replace("Z", "+00:00")
+            date_str = record["date_utc"].replace("Z", "+00:00")
             utc_dt = datetime.fromisoformat(date_str)
             if utc_dt.tzinfo is None:
                 utc_dt = utc_dt.replace(tzinfo=timezone.utc)
