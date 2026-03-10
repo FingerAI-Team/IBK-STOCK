@@ -8,6 +8,7 @@ class StorePipe:
 
     def _to_conv_rows(self, records: list[dict]) -> list[tuple]:
         print(f'records date: {records[0]["date"] if records else "N/A"}')
+        print(f'len hash: {len(set(r["hash_value"] for r in records))}')
         return [
             (
                 r["conv_id"],
