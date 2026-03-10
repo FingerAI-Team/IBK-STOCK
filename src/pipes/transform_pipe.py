@@ -1,4 +1,5 @@
 
+from collections import defaultdict
 from datetime import datetime, timezone, timedelta
 from src.repositories.conv_repo import ConvRepository
 from src.modules.hash_utils import md5_hex
@@ -56,33 +57,34 @@ class TransformPipe:
         return records
 
     def _generate_conv_id(self, records):
-        date_counters = {}
-        kst = timezone(timedelta(hours=9))
-        for record in records:
-            # 이미 존재하는 데이터인지 확인
-            existing_conv_id = self.conv_repo.get_conv_id_by_hash(record["hash_value"])
-            if existing_conv_id:
-                record["conv_id"] = existing_conv_id
-                continue
-            date_str = record["date"].replace("Z", "+00:00")
-            date_value = datetime.fromisoformat(date_str)
+        if not records:
+            return records
 
-            if date_value.tzinfo is None:
-                date_value = date_value.replace(tzinfo=timezone.utc)
-            kst_date = date_value.astimezone(kst)
-            pk_date = kst_date.strftime("%Y%m%d")
-            if pk_date not in date_counters:
-                max_conv = self.conv_repo.get_max_conv_id(pk_date)
-                if max_conv:
-                    try:
-                        date_counters[pk_date] = int(max_conv.split("_")[1])
-                    except Exception:
-                        date_counters[pk_date] = 0
-                else:
-                    date_counters[pk_date] = 0
-            date_counters[pk_date] += 1
-            record["conv_id"] = f"{pk_date}_{date_counters[pk_date]:05d}"
-            record["date"] = kst_date.isoformat()
+        kst = timezone(timedelta(hours=9))
+        # hash → conv_id 미리 조회 (DB 1번)
+        hashes = [r["hash_value"] for r in records]
+        existing_map = self.conv_repo.get_conv_ids_by_hashes(hashes)   # 반환 예: {hash_value: conv_id}
+        counters = defaultdict(int)
+        records.sort(key=lambda r: r["date"])   # 시간순 정렬 (conv_id 안정성)
+
+        for record in records:
+            existing = existing_map.get(record["hash_value"])
+            if existing:
+                record["conv_id"] = existing
+                continue
+
+            # UTC → KST
+            date_str = record["date"].replace("Z", "+00:00")
+            utc_dt = datetime.fromisoformat(date_str)
+            if utc_dt.tzinfo is None:
+                utc_dt = utc_dt.replace(tzinfo=timezone.utc)
+            kst_dt = utc_dt.astimezone(kst)
+            date_key = kst_dt.strftime("%Y%m%d")
+            tenant = record.get("tenant_id", "ibk")
+            counter_key = (date_key, tenant)
+            counters[counter_key] += 1
+            idx = counters[counter_key]
+            record["conv_id"] = f"{date_key}_{tenant}_{idx:05d}"
         return records
     
     def run(self, day_log):
