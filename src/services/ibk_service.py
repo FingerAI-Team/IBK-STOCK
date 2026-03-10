@@ -39,23 +39,21 @@ class IBKPipeline:
             cls_repo=self.cls_repo
         )
 
-    def run(self):
+    def run(self, start_date=None, end_date=None):
         logger.info("pipeline start")
         try:
             self.initialize()
-            day_logs = self.collect_pipe.run()
+            day_logs = self.collect_pipe.run(start_date, end_date)
+            
             logger.info(f"logs collected: {len(day_logs)}")
             if not day_logs:
                 return
-
             records = self.transform_pipe.run(day_log=day_logs)
             logger.info(f"records transformed: {len(records)}")
             if not records:
                 return
-
             cls_records = self.classify_pipe.run(records)
             logger.info(f"classification rows: {len(cls_records)}")
-
             self.store_pipe.run(
                 conv_records=records,
                 cls_data=cls_records

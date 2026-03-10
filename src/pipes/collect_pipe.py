@@ -13,9 +13,11 @@ class DataCollector:
             all_logs.extend(logs)
         return all_logs
     
-    def run(self):
-        now = datetime.now()
-        start_date = now.strftime("%Y-%m-%d")
-        end_date = (now + timedelta(days=1)).strftime("%Y-%m-%d")
+    def run(self, start_date=None, end_date=None):
+        if start_date is None:
+            now = datetime.now()
+            start_date = now.strftime("%Y-%m-%d")
+        if end_date is None:
+            end_date = (datetime.strptime(start_date, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
         day_logs = self.collect(start_date, end_date)
         return day_logs
