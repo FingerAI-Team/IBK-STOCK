@@ -31,7 +31,7 @@ class TransformPipe:
             if not all(k in log for k in ("Q", "A", "date", "user_id")):
                 continue
             user_id = log["user_id"] if log["user_id"] not in (None, "") else "UNKNOWN"
-            tenant_id = log.get("tenant_id") or "ibk"
+            tenant_id = log.get("tenant_id")
             if tenant_id not in ("ibk", "ibks"):
                 tenant_id = "ibk"
 
@@ -80,6 +80,7 @@ class TransformPipe:
             if utc_dt.tzinfo is None:
                 utc_dt = utc_dt.replace(tzinfo=timezone.utc)
             kst_dt = utc_dt.astimezone(kst)
+            print(f'kst_dt: {kst_dt}, utc_dt: {utc_dt}, date_str: {date_str}')
             date_key = kst_dt.strftime("%Y%m%d")
             tenant = record.get("tenant_id", "ibk")
             counter_key = (date_key, tenant)
@@ -100,6 +101,7 @@ class TransformPipe:
                 utc_dt = utc_dt.replace(tzinfo=timezone.utc)
             kst_dt = utc_dt.astimezone(kst)
             r["date"] = kst_dt
+            print(f'added kst date, sample: {records[0]["date"]}, utc date: {records[0]["date_utc"]}')
         return records
     
     def run(self, day_log):
