@@ -17,20 +17,6 @@ class ConvRepository:
                 (date,)
             )
             return cur.fetchall()
-        
-    def get_max_conv_id(self, date_prefix):
-        start = f"{date_prefix}_00000"
-        end = f"{date_prefix}_99999"
-        query = """
-        SELECT MAX(conv_id)
-        FROM ibk_convlog
-        WHERE conv_id >= %s
-        AND conv_id < %s
-        """
-        with self.conn.cursor() as cur:
-            cur.execute(query, (start, end))
-            result = cur.fetchone()
-        return result[0] if result else None
     
     def get_conv_id_by_hash(self, hash_value):
         query = """
@@ -54,29 +40,26 @@ class ConvRepository:
     def get_conv_ids_by_hashes(self, hashes):
         if not hashes:
             return {}
-
         query = """
             SELECT hash_value, conv_id
             FROM ibk_convlog
             WHERE hash_value = ANY(%s)
         """
-
         with self.conn.cursor() as cur:
             cur.execute(query, (hashes,))
             rows = cur.fetchall()
-
         # {hash_value: conv_id}
         return {row[0]: row[1] for row in rows}
 
     def insert_one(self, row: tuple):
         """
-        row = (conv_id, date, qa, content, user_id, tenant_id, hash_value, hash_ref)
+        row = (conv_id, date, qa, content, user_id, tenant_id, hash_value, hash_ref, date_utc)
         """
         with self.conn.cursor() as cur:
             cur.execute(
                 """
                 INSERT INTO ibk_convlog
-                (conv_id, date, qa, content, user_id, tenant_id, hash_value, hash_ref)
+                (conv_id, date, qa, content, user_id, tenant_id, hash_value, hash_ref, date_utc)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 """,
                 row
@@ -90,7 +73,7 @@ class ConvRepository:
             cur.executemany(
                 """
                 INSERT INTO ibk_convlog
-                (conv_id, date, qa, content, user_id, tenant_id, hash_value, hash_ref)
+                (conv_id, date, qa, content, user_id, tenant_id, hash_value, hash_ref, date_utc)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (hash_value) DO NOTHING
                 """,

@@ -20,6 +20,7 @@ class TransformPipe:
           "tenant_id": "...",
           "hash_value": "...",
           "hash_ref": None or "...",
+          "date_utc": "..."
         }
         """
         if not day_logs:
@@ -37,22 +38,22 @@ class TransformPipe:
             q_hash = md5_hex(f"{user_id}_{r['Q']}_{r['date']}")
             a_hash = md5_hex(f"{user_id}_{r['A']}_{r['date']}")
             records.append({
-                "date": r['date'],
                 "qa": "Q",
                 "content": r['Q'],
                 "user_id": user_id,
                 "tenant_id": tenant_id,
                 "hash_value": q_hash,
                 "hash_ref": None,
+                "date_utc": r['date'],  # Assuming the date field is already in UTC
             })
             records.append({
-                "date": r['date'],
                 "qa": "A",
                 "content": r['A'],
                 "user_id": user_id,
                 "tenant_id": tenant_id,
                 "hash_value": a_hash,
                 "hash_ref": q_hash,
+                "date_utc": r['date'],  # Assuming the date field is already in UTC
             })
         return records
 
@@ -85,10 +86,24 @@ class TransformPipe:
             counters[counter_key] += 1
             idx = counters[counter_key]
             record["conv_id"] = f"{date_key}_{tenant}_{idx:05d}"
-        print(f'len records: {len(records)}')
+        # print(f'len records: {len(records)}')
+        return records
+    
+    def _add_kst_date(self, records):
+        if not records:
+            return records
+        kst = timezone(timedelta(hours=9))
+        for r in records:
+            date_str = r["date_utc"].replace("Z", "+00:00")
+            utc_dt = datetime.fromisoformat(date_str)
+            if utc_dt.tzinfo is None:
+                utc_dt = utc_dt.replace(tzinfo=timezone.utc)
+            kst_dt = utc_dt.astimezone(kst)
+            r["date"] = kst_dt
         return records
     
     def run(self, day_log):
         records = self._transform_log(day_log)
         conv_data = self._generate_conv_id(records)
+        conv_data = self._add_kst_date(conv_data)
         return conv_data
