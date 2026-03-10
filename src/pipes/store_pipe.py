@@ -7,6 +7,7 @@ class StorePipe:
         self.cls_repo = cls_repo
 
     def _to_conv_rows(self, records: list[dict]) -> list[tuple]:
+        print(f'records date: {records[0]["date"] if records else "N/A"}')
         return [
             (
                 r["conv_id"],
