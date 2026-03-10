@@ -1,5 +1,6 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
 from src.services.ibk_service import IBKPipeline
+from datetime import datetime, timedelta
 import argparse
 import logging
 
@@ -26,20 +27,30 @@ def run_schedule():
     logger.info("Scheduler started")
     scheduler.start()
 
+def run_backfill(start_date):
+    pipeline = IBKPipeline()
+    start = datetime.strptime(start_date, "%Y-%m-%d")
+    today = datetime.now()
+    current = start
+    while current.date() <= today.date():
+        day = current.strftime("%Y-%m-%d")
+        logger.info(f"Running backfill for {day}")
+        pipeline.run(day, None)
+        current += timedelta(days=1)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--mode",
-        choices=["once", "schedule"],
+        choices=["once", "schedule", "backfill"],
         default="once",
         help="pipeline execution mode"
     )
     parser.add_argument(
-    "--start_date",
-    type=str,
-    default=None,
-    help="start date (YYYY-MM-DD)"
+        "--start_date",
+        type=str,
+        default=None,
+        help="start date (YYYY-MM-DD)"
     )
     parser.add_argument(
         "--end_date",
@@ -55,3 +66,10 @@ if __name__ == "__main__":
     elif args.mode == "schedule":
         logger.info("Running scheduler")
         run_schedule()
+
+    elif args.mode == "backfill":
+        if not args.start_date:
+            raise ValueError("start_date is required for backfill")
+
+        logger.info("Running backfill")
+        run_backfill(args.start_date)
