@@ -7,7 +7,7 @@ class BGEConfig:
 
 @dataclass(frozen=True)
 class ModelConfig:
-    model_paht: str = "/stock-service/model/kfdeberta/model-update"
+    model_path: str = "/stock-service/model/kfdeberta/model-update"
     save_model_path: str = "/stock-service/model/kfdeberta/model-update"
     model_type: str = "mistral"
 
