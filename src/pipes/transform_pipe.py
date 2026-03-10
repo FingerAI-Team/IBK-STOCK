@@ -26,7 +26,7 @@ class TransformPipe:
         if not day_logs:
             return []
         
-        records: list[dict] = [] 
+        records: list[dict] = []. 
         for log in day_logs:
             if not all(k in log for k in ("Q", "A", "date", "user_id")):
                 continue
@@ -107,10 +107,10 @@ class TransformPipe:
             if utc_dt.tzinfo is None:
                 utc_dt = utc_dt.replace(tzinfo=timezone.utc)
             kst_dt = utc_dt.astimezone(kst)
-            r["date"] = kst_dt
-            print(f'added kst date, sample: {r["date"]}, utc date: {r["date_utc"]}')
+            r["date"] = kst_dt.replace(tzinfo=None)
+            r["date_utc"] = utc_dt.replace(tzinfo=None)
         return records
-    
+        
     def run(self, day_log):
         records = self._transform_log(day_log)
         conv_data = self._generate_conv_id(records)
