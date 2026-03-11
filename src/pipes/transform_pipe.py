@@ -72,12 +72,38 @@ class TransformPipe:
         # hash → conv_id 미리 조회 (DB 1번)
         hashes = [r["hash_value"] for r in records]
         existing_map = self.conv_repo.get_conv_ids_by_hashes(hashes)   # 반환 예: {hash_value: conv_id}
-        counters = defaultdict(int)
+        
+        # 기존 데이터를 필터링하고 새로운 데이터만 처리
+        new_records = []
         records.sort(key=lambda r: r["date_utc"])   # 시간순 정렬 (conv_id 안정성)
+        
+        # 날짜별, tenant별 최대 counter 값을 미리 조회
+        date_tenant_counters = {}
         for record in records:
             existing = existing_map.get(record["hash_value"])
             if existing:
-                record["conv_id"] = existing
+                # 기존 데이터는 필터링 (저장하지 않음)
+                continue
+            
+            kst_dt = utc_str_to_kst(record["date_utc"])
+            date_key = kst_dt.strftime("%Y%m%d")
+            tenant = record.get("tenant_id", "ibk")
+            counter_key = (date_key, tenant)
+            
+            # 최대 counter 값을 조회 (한 번만 조회)
+            if counter_key not in date_tenant_counters:
+                date_tenant_counters[counter_key] = self.conv_repo.get_max_counter_by_date_tenant(date_key, tenant)
+        
+        # counter 초기화 (기존 최대값부터 시작)
+        counters = defaultdict(int)
+        for counter_key, max_counter in date_tenant_counters.items():
+            counters[counter_key] = max_counter
+        
+        # 새로운 데이터에 conv_id 할당
+        for record in records:
+            existing = existing_map.get(record["hash_value"])
+            if existing:
+                # 기존 데이터는 필터링 (저장하지 않음)
                 continue
 
             kst_dt = utc_str_to_kst(record["date_utc"])
@@ -87,8 +113,9 @@ class TransformPipe:
             counters[counter_key] += 1
             idx = counters[counter_key]
             record["conv_id"] = f"{date_key}_{tenant}_{idx:05d}"
-        # print(f'len records: {len(records)}')
-        return records
+            new_records.append(record)
+        # print(f'len records: {len(new_records)}')
+        return new_records
     
     def _add_kst_date(self, records):
         if not records:
