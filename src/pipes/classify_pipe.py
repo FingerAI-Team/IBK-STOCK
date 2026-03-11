@@ -60,7 +60,7 @@ class DataClassifier:
             text = record["content"]
             if not text:
                 continue
-
+        
             fast_filter = self.filter_text(text)
             if fast_filter is None:
                 texts.append(text)

@@ -1,8 +1,9 @@
+from src.config import DBConfig
 import psycopg2 
 
 class DBConnection:
-    def __init__(self, config):
-        self.config = config
+    def __init__(self, config: DBConfig | None=None):
+        self.config = config or DBConfig()
     
     def connect(self):
         print(f'[DEBUG] Connecting to DB with config: {self.config}')

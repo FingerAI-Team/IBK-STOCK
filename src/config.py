@@ -8,7 +8,6 @@ class BGEConfig:
 @dataclass(frozen=True)
 class ModelConfig:
     model_path: str = "/stock-service/model/kfdeberta/model-update"
-    save_model_path: str = "/stock-service/model/kfdeberta/model-update"
     model_type: str = "mistral"
 
 @dataclass(frozen=True)
@@ -21,6 +20,7 @@ class TokenizerConfig:
 
 @dataclass(frozen=True)
 class HFTrainConfig:
+    save_model_path: str = "/stock-service/model/kfdeberta/model-update"
     output_subdir: str = "kfdeberta"
     learning_rate: float = 2e-5
     train_batch_size: int = 16
