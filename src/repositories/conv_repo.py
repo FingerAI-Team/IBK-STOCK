@@ -75,7 +75,7 @@ class ConvRepository:
                 INSERT INTO ibk_convlog
                 (conv_id, date, qa, content, user_id, tenant_id, hash_value, hash_ref, date_utc)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                ON CONFLICT (conv_id, qa) DO NOTHING
+                ON CONFLICT DO NOTHING
                 """,
                 rows
             )
