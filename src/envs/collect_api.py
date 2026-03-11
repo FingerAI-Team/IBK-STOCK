@@ -8,7 +8,7 @@ class IBKAPIEnv:
         self.session = requests.Session()
 
     def fetch_logs(self, from_date, to_date, tenant_id="ibk"):
-        print(f'from_date: {from_date}, to_date: {to_date}, tenant_id: {tenant_id}')
+        # print(f'from_date: {from_date}, to_date: {to_date}, tenant_id: {tenant_id}')
         url = (
             self.config.base_url + 
             f"/api/ibk_securities/admin/logs?tenant_id={tenant_id}"

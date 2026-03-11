@@ -8,7 +8,6 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s"
 )
-
 logger = logging.getLogger(__name__)
 
 def run_once(start_date=None, end_date=None):
@@ -70,6 +69,5 @@ if __name__ == "__main__":
     elif args.mode == "backfill":
         if not args.start_date:
             raise ValueError("start_date is required for backfill")
-
         logger.info("Running backfill")
         run_backfill(args.start_date)
