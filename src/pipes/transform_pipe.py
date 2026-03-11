@@ -1,8 +1,9 @@
 
-from collections import defaultdict
-from datetime import datetime, timezone, timedelta
 from src.repositories.conv_repo import ConvRepository
 from src.modules.hash_utils import md5_hex
+from src.modules.processors.time_p import utc_to_kst, parse_utc, utc_str_to_kst
+from collections import defaultdict
+from datetime import datetime, timezone, timedelta
 
 class TransformPipe:
     def __init__(self, conv_repo: ConvRepository):
@@ -69,25 +70,18 @@ class TransformPipe:
         if not records:
             return records
 
-        kst = timezone(timedelta(hours=9))
         # hash → conv_id 미리 조회 (DB 1번)
         hashes = [r["hash_value"] for r in records]
         existing_map = self.conv_repo.get_conv_ids_by_hashes(hashes)   # 반환 예: {hash_value: conv_id}
         counters = defaultdict(int)
         records.sort(key=lambda r: r["date_utc"])   # 시간순 정렬 (conv_id 안정성)
-
         for record in records:
             existing = existing_map.get(record["hash_value"])
             if existing:
                 record["conv_id"] = existing
                 continue
 
-            # UTC → KST
-            date_str = record["date_utc"].replace("Z", "+00:00")
-            utc_dt = datetime.fromisoformat(date_str)
-            if utc_dt.tzinfo is None:
-                utc_dt = utc_dt.replace(tzinfo=timezone.utc)
-            kst_dt = utc_dt.astimezone(kst)
+            kst_dt = utc_str_to_kst(record["date_utc"])
             date_key = kst_dt.strftime("%Y%m%d")
             tenant = record.get("tenant_id", "ibk")
             counter_key = (date_key, tenant)
@@ -100,13 +94,11 @@ class TransformPipe:
     def _add_kst_date(self, records):
         if not records:
             return records
-        kst = timezone(timedelta(hours=9))
+        
         for r in records:
-            date_str = r["date_utc"].replace("Z", "+00:00")
-            utc_dt = datetime.fromisoformat(date_str)
-            if utc_dt.tzinfo is None:
-                utc_dt = utc_dt.replace(tzinfo=timezone.utc)
-            kst_dt = utc_dt.astimezone(kst)
+            utc_dt = parse_utc(r["date_utc"])
+            kst_dt = utc_to_kst(utc_dt)
+            
             r["date"] = kst_dt.replace(tzinfo=None)
             r["date_utc"] = utc_dt.replace(tzinfo=None)
         return records
