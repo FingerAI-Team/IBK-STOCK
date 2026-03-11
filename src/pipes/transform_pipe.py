@@ -3,7 +3,6 @@ from src.repositories.conv_repo import ConvRepository
 from src.modules.hash_utils import md5_hex
 from src.modules.processors.time_p import utc_to_kst, parse_utc, utc_str_to_kst
 from collections import defaultdict
-from datetime import datetime, timezone, timedelta
 
 class TransformPipe:
     def __init__(self, conv_repo: ConvRepository):
@@ -98,7 +97,7 @@ class TransformPipe:
         for r in records:
             utc_dt = parse_utc(r["date_utc"])
             kst_dt = utc_to_kst(utc_dt)
-            
+
             r["date"] = kst_dt.replace(tzinfo=None)
             r["date_utc"] = utc_dt.replace(tzinfo=None)
         return records
