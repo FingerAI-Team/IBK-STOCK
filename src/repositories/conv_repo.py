@@ -77,6 +77,60 @@ class ConvRepository:
                     except ValueError:
                         return 0
             return 0
+    
+    def get_max_counters_batch(self, date_tenant_pairs: list[tuple]) -> dict:
+        """
+        여러 날짜와 tenant 조합의 최대 counter 값을 한 번에 조회합니다.
+        args:
+            date_tenant_pairs: [(date_key, tenant), ...] 형태의 리스트
+        returns:
+            {(date_key, tenant): max_counter} 형태의 딕셔너리
+        """
+        if not date_tenant_pairs:
+            return {}
+        
+        # 한 번의 쿼리로 모든 최대값 조회
+        # PostgreSQL의 DISTINCT ON을 사용하여 각 조합의 최대값만 조회
+        conditions = []
+        params = []
+        for date_key, tenant in date_tenant_pairs:
+            conditions.append("(SPLIT_PART(conv_id, '_', 1) = %s AND SPLIT_PART(conv_id, '_', 2) = %s)")
+            params.extend([date_key, tenant])
+        
+        query = """
+            SELECT DISTINCT ON (SPLIT_PART(conv_id, '_', 1), SPLIT_PART(conv_id, '_', 2))
+                   conv_id,
+                   SPLIT_PART(conv_id, '_', 1) as date_key,
+                   SPLIT_PART(conv_id, '_', 2) as tenant
+            FROM ibk_convlog
+            WHERE (
+        """ + " OR ".join(conditions) + """
+            )
+            ORDER BY SPLIT_PART(conv_id, '_', 1), SPLIT_PART(conv_id, '_', 2), conv_id DESC
+        """
+        
+        result = {}
+        with self.conn.cursor() as cur:
+            cur.execute(query, params)
+            rows = cur.fetchall()
+            for row in rows:
+                conv_id, date_key, tenant = row
+                parts = conv_id.split('_')
+                if len(parts) >= 3:
+                    try:
+                        counter = int(parts[2])
+                        key = (date_key, tenant)
+                        result[key] = counter
+                    except ValueError:
+                        pass
+        
+        # 조회되지 않은 조합은 0으로 초기화
+        for date_key, tenant in date_tenant_pairs:
+            key = (date_key, tenant)
+            if key not in result:
+                result[key] = 0
+        
+        return result
 
     def insert_one(self, row: tuple):
         """
