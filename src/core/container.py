@@ -36,7 +36,7 @@ def build_container(oneline_config: OnelineConfig):
     # Service
     train_service = IBKModelTrainer(model_env=hf_env, tokenizer_env=tokenizer_env, db_pipe=db_pipe, trainer=trainer_pipe)
     ibk_service = IBKPipeline(api_env=collect_env, conv_repo=conv_repo, cls_repo=cls_repo, 
-                              collect_pipe=collect_pipe, transform_pipe=transform_pipe, classfiy_pipe=classify_pipe, store_pipe=store_pipe)
+                              collect_pipe=collect_pipe, transform_pipe=transform_pipe, classify_pipe=classify_pipe, store_pipe=store_pipe)
     return {
         "train_service": train_service, 
         "ibk_service": ibk_service
