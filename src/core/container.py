@@ -39,5 +39,6 @@ def build_container(oneline_config: OnelineConfig):
                               collect_pipe=collect_pipe, transform_pipe=transform_pipe, classify_pipe=classify_pipe, store_pipe=store_pipe)
     return {
         "train_service": train_service, 
-        "ibk_service": ibk_service
+        "ibk_service": ibk_service, 
+        "db_connection": db_connection
     }
