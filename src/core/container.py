@@ -30,7 +30,7 @@ def build_container(oneline_config: OnelineConfig):
     collect_pipe = DataCollector(api_env=collect_env)
     transform_pipe = TransformPipe(conv_repo=conv_repo)
     classify_pipe = DataClassifier()
-    store_pipe = StorePipe()
+    store_pipe = StorePipe(conv_repo=conv_repo, cls_repo=cls_repo)
     trainer_pipe = ModelTrainer(tokenizer_env, hf_env)
 
     # Service
