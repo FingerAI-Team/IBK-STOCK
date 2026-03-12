@@ -4,6 +4,7 @@ import requests
 class IBKAPIEnv:
     def __init__(self, config: OnelineConfig | None=None):
         self.config = config or OnelineConfig()
+        print(f'[DEBUG] Config: {self.config}')
         self.bearer_token = self.config.bearer_token
         self.session = requests.Session()
 
