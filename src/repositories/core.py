@@ -6,7 +6,6 @@ class DBConnection:
         self.config = config or DBConfig()
     
     def connect(self):
-        print(f'[DEBUG] Connecting to DB with config: {self.config}')
         self.conn = psycopg2.connect(
             host=self.config.host,
             dbname=self.config.db_name,

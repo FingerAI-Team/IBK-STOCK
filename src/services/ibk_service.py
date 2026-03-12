@@ -1,50 +1,30 @@
 from src.repositories.conv_repo import ConvRepository
 from src.repositories.cls_repo import ClsRepository
-from src.repositories.core import DBConnection
 from src.pipes.transform_pipe import TransformPipe
 from src.pipes.classify_pipe import DataClassifier
 from src.pipes.collect_pipe import DataCollector
 from src.pipes.store_pipe import StorePipe
 from src.envs.collect_api import IBKAPIEnv
-from src.core.settings import ONELINE_CONFIG, DB_CONFIG
 import logging
 
 logger = logging.getLogger(__name__)
 
 
 class IBKPipeline:
-    def __init__(self):
-        self.api_env = IBKAPIEnv(config=ONELINE_CONFIG)
-        self.db_connection = DBConnection(config=DB_CONFIG)
-
-        self.conv_repo = None
-        self.cls_repo = None
-
-        self.collect_pipe = None
-        self.transform_pipe = None
-        self.classify_pipe = None
-        self.store_pipe = None
-
-    def initialize(self):
-        self.db_connection.connect()
-        self.conv_repo = ConvRepository(self.db_connection.conn)
-        self.cls_repo = ClsRepository(self.db_connection.conn)
-        self.collect_pipe = DataCollector(self.api_env)
-        self.transform_pipe = TransformPipe(
-            conv_repo=self.conv_repo
-        )
-        self.classify_pipe = DataClassifier()
-        self.store_pipe = StorePipe(
-            conv_repo=self.conv_repo,
-            cls_repo=self.cls_repo
-        )
+    def __init__(self, api_env: IBKAPIEnv, conv_repo: ConvRepository, cls_repo: ClsRepository, 
+            collect_pipe: DataCollector, transform_pipe: TransformPipe, classify_pipe: DataClassifier, store_pipe: StorePipe):
+        self.api_env = api_env
+        self.conv_repo = conv_repo
+        self.cls_repo = cls_repo
+        self.collect_pipe = collect_pipe
+        self.transform_pipe = transform_pipe
+        self.classify_pipe = classify_pipe
+        self.store_pipe = store_pipe
 
     def run(self, start_date=None, end_date=None):
         logger.info("pipeline start")
         try:
-            self.initialize()
             day_logs = self.collect_pipe.run(start_date, end_date)
-            
             logger.info(f"logs collected: {len(day_logs)}")
             records = self.transform_pipe.run(day_log=day_logs)
             logger.info(f"records transformed: {len(records)}")

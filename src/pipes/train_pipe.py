@@ -34,9 +34,9 @@ class ModelTrainer:
         test_df = data_to_df(list(zip(X_test, y_test)), columns=['text', 'label']).reset_index(drop=True)
         print(len(train_df), len(val_df), len(test_df))
         stock_dict = DatasetDict({
-            "train": Dataset.from_pandas(train_df), 
-            "val": Dataset.from_pandas(val_df),
-            "test": Dataset.from_pandas(test_df)
+            "train": Dataset.from_pandas(train_df, preserve_index=False), 
+            "val": Dataset.from_pandas(val_df, preserve_index=False),
+            "test": Dataset.from_pandas(test_df, preserve_index=False)
         })
         return stock_dict
     
@@ -86,11 +86,13 @@ class ModelTrainer:
             data_collator=data_collator,
             compute_metrics=self.metric_module.compute,
         )
-    
-    def train(self, dataset):
-        trainer = self._build_trainer(dataset)
-        trainer.train()
-        return trainer
 
     def save_model(self, trainer, model_path):
         trainer.save_model(model_path)
+
+    def run(self, conv_data, cls_data):
+        dataset = self._build_dataset(conv_data, cls_data)
+        tokenized_dataset = self._tokenize_dataset(dataset)
+        trainer = self._build_trainer(tokenized_dataset)
+        trainer.train()
+        self.save_model(trainer, self.train_config.save_model_path)

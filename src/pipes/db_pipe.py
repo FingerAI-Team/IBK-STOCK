@@ -4,8 +4,8 @@ from src.repositories.cls_repo import ClsRepository
 from src.config import DBConfig
 
 class DBPipe:
-    def __init__(self, db_config: DBConfig):
-        self.db_config = db_config
+    def __init__(self, db_config: DBConfig | None = None):
+        self.db_config = db_config or DBConfig()
         self.db_conn = None
 
     def _connect(self):
