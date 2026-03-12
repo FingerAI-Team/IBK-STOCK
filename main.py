@@ -43,7 +43,7 @@ def run_backfill(service, start_date):
 
 def main(args):
     logger.info("Building container")
-    service = build_container(oneline_config=OnelineConfig())
+    service = build_container()
     logger.info("Container ready")
     try:
         if args.mode == "once":

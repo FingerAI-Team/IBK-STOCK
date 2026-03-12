@@ -12,15 +12,15 @@ from src.services.ibk_service import IBKPipeline
 from src.repositories.conv_repo import ConvRepository
 from src.repositories.cls_repo import ClsRepository
 from src.repositories.core import DBConnection
-from src.config import DBConfig, OnelineConfig
+from src.core.settings import ONELINE_CONFIG, DB_CONFIG
 from src.config import OnelineConfig
 
-def build_container(oneline_config: OnelineConfig):
+def build_container():
     # Envs 
     hf_env = HFModelEnv()
     tokenizer_env = HFTokenizerEnv()
-    collect_env = IBKAPIEnv(config=oneline_config)
-    db_connection = DBConnection(DBConfig)
+    collect_env = IBKAPIEnv(config=ONELINE_CONFIG)
+    db_connection = DBConnection(DB_CONFIG)
     db_connection.connect() 
     conv_repo = ConvRepository(db_connection.conn)
     cls_repo = ClsRepository(db_connection.conn)
