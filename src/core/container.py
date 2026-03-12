@@ -28,7 +28,7 @@ def build_container(oneline_config: OnelineConfig):
     # Pipe 
     db_pipe = DBPipe()
     collect_pipe = DataCollector(api_env=collect_env)
-    transform_pipe = TransformPipe()
+    transform_pipe = TransformPipe(conv_repo=conv_repo)
     classify_pipe = DataClassifier()
     store_pipe = StorePipe()
     trainer_pipe = ModelTrainer(tokenizer_env, hf_env)
