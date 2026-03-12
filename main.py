@@ -1,6 +1,6 @@
-from src.core.container import build_container
-from src.config import OnelineConfig
 from apscheduler.schedulers.blocking import BlockingScheduler
+from src.config import OnelineConfig
+from src.core.container import build_container
 from datetime import datetime, timedelta
 import argparse
 import logging
@@ -25,7 +25,10 @@ def run_schedule(service):
         args=[service]
     )
     logger.info("Scheduler started")
-    scheduler.start()
+    try:
+        scheduler.start()
+    except (KeyboardInterrupt, SystemExit):
+        logger.info("Scheduler stopped")
 
 def run_backfill(service, start_date):
     start = datetime.strptime(start_date, "%Y-%m-%d")
@@ -37,19 +40,25 @@ def run_backfill(service, start_date):
         service["ibk_service"].run(day, None)
         current += timedelta(days=1)
 
+
 def main(args):
     logger.info("Building container")
-    service = build_container(oneline_config=OnelineConfig)
+    service = build_container(oneline_config=OnelineConfig())
     logger.info("Container ready")
-
-    if args.mode == "once":
-        run_once(service, args.start_date, args.end_date)
-    elif args.mode == "schedule":
-        run_schedule(service)
-    elif args.mode == "backfill":
-        if not args.start_date:
-            raise ValueError("start_date is required for backfill")
-        run_backfill(service, args.start_date)
+    try:
+        if args.mode == "once":
+            run_once(service, args.start_date, args.end_date)
+        elif args.mode == "schedule":
+            run_schedule(service)
+        elif args.mode == "backfill":
+            if not args.start_date:
+                raise ValueError("start_date is required for backfill")
+            run_backfill(service, args.start_date)
+    finally:
+        # 🔥 프로그램 종료 시 DB close
+        if "db_connection" in service:
+            service["db_connection"].close()
+            logger.info("DB connection closed")
 
 
 if __name__ == "__main__":
@@ -57,7 +66,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--mode",
         choices=["once", "schedule", "backfill"],
-        default="once",
+        default="once"
     )
     parser.add_argument(
         "--start_date",
