@@ -37,5 +37,3 @@ class IBKPipeline:
             logger.info("pipeline finished")
         except Exception as e:
             logger.exception(f"pipeline error: {e}")
-        finally:
-            self.db_connection.close()
